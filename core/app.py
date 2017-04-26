@@ -1,4 +1,5 @@
 import os
+import threading
 from threading import Thread
 
 from flask import Flask
@@ -9,6 +10,11 @@ from sqlalchemy.orm.session import sessionmaker
 
 from models.base import Base, Company
 from seeds.seed import seed_IBEX35, seed_daily_data, seed_state_bonus
+
+import time
+import schedule
+# import thread
+
 
 class CoreApp(Thread):
 
@@ -38,6 +44,7 @@ class CoreApp(Thread):
         seed_state_bonus(session)
 
     def seed_day(self):
+        print('Seed database with daily ratios')
         Session = sessionmaker(bind=self.engine)
         session = Session()
         seed_daily_data(session)
@@ -64,6 +71,16 @@ class CoreApp(Thread):
         self.seed_companies()
         print('Database restarted')
 
+    @staticmethod
+    def job():
+        print("I'm working...")
+
+    @staticmethod
+    def period_seed():
+        while True:
+            schedule.run_pending()
+            time.sleep(60)
+
     def __init__(self):
         self._app = Flask(__name__)
         self._app.config.from_object(__name__)
@@ -76,4 +93,9 @@ class CoreApp(Thread):
         self._app.config.from_envvar('MARKET_SETTINGS', silent=True)
         self._engine = create_engine('sqlite:///' + self._app.config['DATABASE'])
         # self.restart_database()
-        self.seed_day()
+        # self.seed_day()
+        schedule.every().day.at("13:13").do(CoreApp.seed_day)
+        # schedule.every(10).seconds.do(self.seed_day)
+
+        t = threading.Thread(target=CoreApp.period_seed)
+        t.start()

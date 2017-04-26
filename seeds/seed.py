@@ -80,8 +80,12 @@ def save_daily_entry(session, ratios: list, company_id: int, price, difference, 
         dividend_yield=format_ratio(ratios[5]) if ratios[5] != '-' else None,
         interest_per_share=format_ratio(ratios[6]) if ratios[6] != '-' else None,
     )
-    session.add(daily_data)
-    session.commit()
+    try:
+        session.add(daily_data)
+        session.commit()
+    except IntegrityError as ex:
+        print(ex)
+        session.rollback()
 
 
 def format_ratio(str_ratio: str) -> float:
