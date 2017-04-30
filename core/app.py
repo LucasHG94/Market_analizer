@@ -27,6 +27,10 @@ class CoreApp(Thread):
         return self._engine
 
     @property
+    def session(self) -> dict:
+        return self._session
+
+    @property
     def base(self) -> dict:
         return Base
 
@@ -34,20 +38,14 @@ class CoreApp(Thread):
         self.app.run(host='0.0.0.0', debug=False, port=int(os.environ.get("PORT", 5000)), threaded=True)
 
     def seed_companies(self):
-        Session = sessionmaker(bind=self.engine)
-        session = Session()
-        seed_IBEX35(session)
+        seed_IBEX35(self.session)
 
     def seed_state_bonus(self):
-        Session = sessionmaker(bind=self.engine)
-        session = Session()
-        seed_state_bonus(session)
+        seed_state_bonus(self.session)
 
     def seed_day(self):
         print('Initiating daily data collection.')
-        Session = sessionmaker(bind=self.engine)
-        session = Session()
-        seed_daily_data(session)
+        seed_daily_data(self.session)
 
     def show_data(self):
         connection = self.engine.connect()
@@ -92,9 +90,11 @@ class CoreApp(Thread):
         ))
         self._app.config.from_envvar('MARKET_SETTINGS', silent=True)
         self._engine = create_engine('sqlite:///' + self._app.config['DATABASE'])
+        Session = sessionmaker(bind=self.engine)
+        self._session = Session()
         # self.restart_database()
-        self.seed_day()
-        schedule.every().day.at("13:13").do(CoreApp.seed_day)
+        # self.seed_day()
+        # schedule.every().day.at("13:13").do(CoreApp.seed_day)
         # schedule.every(10).seconds.do(self.seed_day)
 
         # t = threading.Thread(target=CoreApp.period_seed)

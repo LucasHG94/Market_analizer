@@ -4,7 +4,7 @@ __core_app__ = CoreApp()
 
 
 def init_app():
-    from core.api import CoreAPI
+    from core.websocket import Websocket
     __core_app__.run()
 
 
