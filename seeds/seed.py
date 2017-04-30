@@ -44,10 +44,12 @@ def seed_daily_data(session):
     companies = session.query(Company).all()
     for company in companies:
         seed_company_daily_data(session, company)
+    print('Daily data collection completed.')
 
 
 def format_company_name(raw: str) -> str:
     name = raw.replace(' ', '_')
+    name = name.replace('/', '')
     name = name.replace('"', '')
     return name.lower()
 
