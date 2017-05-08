@@ -18,7 +18,8 @@ setup(
         'Flask-SocketIO==2.7.2',
         'Flask-Cors==3.0.2',
         'requests==2.13.0',
-        'lxml==3.7.1'
+        'lxml==3.7.1',
+        'schedule==0.4.2'
     ],
     include_package_data=True,
 )
