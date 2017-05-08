@@ -35,7 +35,8 @@ class StateBonus(BaseAPI, Base):
     def serialize(self) -> dict:
         return {
             'date': self.date,
-            'state_bonus': self.state_bonus
+            'state_bonus': self.state_bonus,
+            'variation': self.variation
         }
 
 
@@ -78,11 +79,11 @@ class DailyData(BaseAPI, Base):
     interest_per_share = Column('interest_per_share', Float)
     last_value = Column('last_value', Float)
 
-    def serialize(self) -> dict:
+    def serialize(self, company: bool = False) -> dict:
         return {
-            'date': self.date,
+            'date': self.date.isoformat(),
             'companyId': self.company_id,
-            'company': self.company.serialize(),
+            'company': self.company.serialize() if company else None,
             'price': self.price,
             'difference': self.difference,
             'percentageDifference': self.percentage_difference,
