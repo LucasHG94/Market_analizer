@@ -3,6 +3,7 @@ import threading
 from threading import Thread
 
 from flask import Flask
+from flask_cors import CORS, cross_origin
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
@@ -21,6 +22,10 @@ class CoreApp(Thread):
     @property
     def app(self) -> dict:
         return self._app
+
+    @property
+    def cors(self) -> dict:
+        return self._cors
 
     @property
     def engine(self) -> dict:
@@ -81,19 +86,21 @@ class CoreApp(Thread):
 
     def __init__(self):
         self._app = Flask(__name__)
+        self._cors = CORS(self.app, resources={r"/*": {"origins": "*"}})
         self._app.config.from_object(__name__)
         self._app.config.update(dict(
             DATABASE=os.path.join('/home/sturm/Workspace/Market_analizer', 'database/market.db'),
             SECRET_KEY='123',
             USERNAME='admin',
-            PASSWORD='123'
+            PASSWORD='123',
+            CORS_HEADERS='Content-Type'
         ))
         self._app.config.from_envvar('MARKET_SETTINGS', silent=True)
         self._engine = create_engine('sqlite:///' + self._app.config['DATABASE'])
         Session = sessionmaker(bind=self.engine)
         self._session = Session()
         # self.restart_database()
-        # self.seed_day()
+        self.seed_day()
         # schedule.every().day.at("13:13").do(CoreApp.seed_day)
         # schedule.every(10).seconds.do(self.seed_day)
 
