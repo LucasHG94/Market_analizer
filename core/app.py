@@ -96,11 +96,12 @@ class CoreApp(Thread):
             CORS_HEADERS='Content-Type'
         ))
         self._app.config.from_envvar('MARKET_SETTINGS', silent=True)
-        self._engine = create_engine('sqlite:///' + self._app.config['DATABASE'])
+        self._engine = create_engine('sqlite:///' + self._app.config['DATABASE'],
+                                     connect_args={'check_same_thread': False})
         Session = sessionmaker(bind=self.engine)
         self._session = Session()
         # self.restart_database()
-        self.seed_day()
+        # self.seed_day()
         # schedule.every().day.at("13:13").do(CoreApp.seed_day)
         # schedule.every(10).seconds.do(self.seed_day)
 
