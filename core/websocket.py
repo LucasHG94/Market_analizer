@@ -58,6 +58,30 @@ class Websocket:
             return Websocket.invalid_response(ex)
 
     @staticmethod
+    @core.app.route('/getIBEX35Companies')
+    def get_companies():
+        try:
+            data = [company.serialize() for company in Facade.get_IBEX35_companies(core.session)]
+            return Websocket.valid_response(data)
+        except KeyError as ex:
+            return Websocket.invalid_api_parameter('getCompanies', ex)
+        except Exception as ex:
+            # DEBUG
+            return Websocket.invalid_response(ex)
+
+    @staticmethod
+    @core.app.route('/getBMENoIBEX35Companies')
+    def get_companies():
+        try:
+            data = [company.serialize() for company in Facade.get_BME_no_IBEX35_companies(core.session)]
+            return Websocket.valid_response(data)
+        except KeyError as ex:
+            return Websocket.invalid_api_parameter('getCompanies', ex)
+        except Exception as ex:
+            # DEBUG
+            return Websocket.invalid_response(ex)
+
+    @staticmethod
     @core.app.route('/getCompanyData/<company_id>')
     def get_company_data(company_id: int):
         print('Params: ', company_id)
