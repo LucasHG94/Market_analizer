@@ -56,7 +56,7 @@ class Company(BaseAPI, Base):
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     name = Column('name', String(255), nullable=False, unique=True)
     daily_data = relationship('DailyData', lazy='subquery')
-    market_type = Column('marketType', MarketType)
+    market_type = Column('market_type', MarketType)
 
     def serialize(self, daily_data: bool = False) -> dict:
         return {
