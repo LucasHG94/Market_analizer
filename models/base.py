@@ -5,6 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import Date
 from sqlalchemy import Float
+from sqlalchemy import Enum
 from sqlalchemy import ForeignKey
 from sqlalchemy.sql.schema import UniqueConstraint
 
@@ -40,12 +41,22 @@ class StateBonus(BaseAPI, Base):
         }
 
 
+MarketType = Enum(
+    'IBEX35',
+    'BME_no_IBEX35',
+    'EURO_STOXX50',
+    'DOW_JONES',
+    name='MarketType'
+)
+
+
 class Company(BaseAPI, Base):
     __tablename__ = 'company'
 
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     name = Column('name', String(255), nullable=False, unique=True)
     daily_data = relationship('DailyData', lazy='subquery')
+    market_type = Column('marketType', MarketType)
 
     def serialize(self, daily_data: bool = False) -> dict:
         return {
