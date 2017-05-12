@@ -7,10 +7,24 @@ from datetime import date, datetime
 from models.base import DailyData, Company, StateBonus
 
 
-def seed_IBEX35(session):
+def seed_BME(session):
     crs = open("/home/sturm/Workspace/Market_analizer/seeds/IBEX35.txt", "r")
     for company_name in crs:
         company = Company(name=company_name.replace('\n', ''))
+        session.add(company)
+    try:
+        session.commit()
+    except IntegrityError as ex:
+        print(ex)
+
+
+def seed_EURO_STOXX50(session):
+    crs = open("/home/sturm/Workspace/Market_analizer/seeds/EURO_STOXX50.txt", "r")
+    for company_name in crs:
+        company = Company(
+            name=company_name.replace('\n', ''),
+            market_type='EURO_STOXX50'
+        )
         session.add(company)
     try:
         session.commit()
@@ -40,11 +54,21 @@ def seed_state_bonus(session):
         print(ex)
 
 
-def seed_daily_data(session):
-    companies = session.query(Company).all()
+def save_daily_data(session):
+    companies = session.query(Company).filter_by(market_type='IBEX35').all()
     for company in companies:
-        seed_company_daily_data(session, company)
-    print('Daily data collection completed.')
+        save_company_daily_data(session, company, 'cotizacion/informacion-')
+    print('IBEX35 daily data collection completed.')
+
+    companies = session.query(Company).filter_by(market_type='BME_no_IBEX35').all()
+    for company in companies:
+        save_company_daily_data(session, company, 'cotizacion/informacion-')
+    print('BME daily data collection completed.')
+
+    # companies = session.query(Company).filter_by(market_type='EURO_STOXX50').all()
+    # for company in companies:
+    #     save_company_daily_data(session, company, 'cotizacion-br/')
+    # print('EURO STOXX50 daily data collection completed.')
 
 
 def format_company_name(raw: str) -> str:
@@ -54,8 +78,8 @@ def format_company_name(raw: str) -> str:
     return name.lower()
 
 
-def seed_company_daily_data(session, company: Company):
-    page = requests.get('http://www.infobolsa.es/cotizacion/informacion-' + format_company_name(company.name))
+def save_company_daily_data(session, company: Company, sub_url: str):
+    page = requests.get('http://www.infobolsa.es/' + sub_url + format_company_name(company.name))
     tree = html.fromstring(page.content)
     ratios = tree.xpath('//td[@class="data"]/text()')
     price = tree.xpath('//div[@class="subdata1"]/div/text()')
