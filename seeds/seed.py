@@ -32,7 +32,7 @@ def seed_EURO_STOXX50(session):
         print(ex)
 
 
-def seed_state_bonus(session):
+def save_state_bonus(session, all_the_times: bool = False):
     page = requests.get('http://www.datosmacro.com/bono/espana')
     tree = html.fromstring(page.content)
     dates = tree.xpath('//td[@class="fecha"]/text()')
@@ -41,17 +41,32 @@ def seed_state_bonus(session):
     dates = dates[1:]
     types = types[1:]
     variations = variations[1:]
-    for i in range(len(dates)):
+    if all_the_times:
+        for i in range(len(dates)):
+            state_bonus = StateBonus(
+                date=datetime.strptime(dates[i], '%d/%m/%Y').date(),
+                type=format_ratio(types[i]) if i < len(types) else None,
+                variation=format_ratio(variations[i]) if i < len(variations) else None
+            )
+            session.add(state_bonus)
+            try:
+                session.commit()
+            except IntegrityError as ex:
+                print(ex)
+                session.rollback()
+    else:
+        print(dates[0])
         state_bonus = StateBonus(
-            date=datetime.strptime(dates[i], '%d/%m/%Y').date(),
-            type=format_ratio(types[i]) if i < len(types) else None,
-            variation=format_ratio(variations[i]) if i < len(variations) else None
+            date=datetime.strptime(dates[0], '%d/%m/%Y').date(),
+            type=format_ratio(types[0]),
+            variation=format_ratio(variations[0])
         )
         session.add(state_bonus)
-    try:
-        session.commit()
-    except IntegrityError as ex:
-        print(ex)
+        try:
+            session.commit()
+        except IntegrityError as ex:
+            print(ex)
+            session.rollback()
 
 
 def save_daily_data(session):

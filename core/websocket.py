@@ -59,7 +59,7 @@ class Websocket:
 
     @staticmethod
     @core.app.route('/getIBEX35Companies')
-    def get_companies():
+    def get_IBEX35_companies():
         try:
             data = [company.serialize() for company in Facade.get_IBEX35_companies(core.session)]
             return Websocket.valid_response(data)
@@ -71,7 +71,7 @@ class Websocket:
 
     @staticmethod
     @core.app.route('/getBMENoIBEX35Companies')
-    def get_companies():
+    def get_BME_no_IBEX35_companies():
         try:
             data = [company.serialize() for company in Facade.get_BME_no_IBEX35_companies(core.session)]
             return Websocket.valid_response(data)

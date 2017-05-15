@@ -10,7 +10,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.session import sessionmaker
 
 from models.base import Base, Company
-from seeds.seed import seed_BME, save_daily_data, seed_state_bonus
+from seeds.seed import seed_BME, save_daily_data, save_state_bonus
 
 import time
 import schedule
@@ -45,12 +45,13 @@ class CoreApp(Thread):
     def seed_companies(self):
         seed_BME(self.session)
 
-    def seed_state_bonus(self):
-        seed_state_bonus(self.session)
+    def save_state_bonus(self):
+        save_state_bonus(self.session, all_the_times=True)
 
     def seed_day(self):
         print('Initiating daily data collection.')
         save_daily_data(self.session)
+        save_state_bonus(self.session)
 
     def show_data(self):
         connection = self.engine.connect()
@@ -70,7 +71,7 @@ class CoreApp(Thread):
     def restart_database(self):
         Base.metadata.drop_all(self.engine)
         Base.metadata.create_all(self.engine)
-        self.seed_state_bonus()
+        self.save_state_bonus()
         self.seed_companies()
         print('Database restarted')
 
@@ -100,7 +101,6 @@ class CoreApp(Thread):
                                      connect_args={'check_same_thread': False})
         Session = sessionmaker(bind=self.engine)
         self._session = Session()
-        # self.restart_database()
         self.seed_day()
         # schedule.every().day.at("13:13").do(CoreApp.seed_day)
         # schedule.every(10).seconds.do(self.seed_day)
