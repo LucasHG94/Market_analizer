@@ -90,7 +90,7 @@ class CoreApp(Thread):
         self._cors = CORS(self.app, resources={r"/*": {"origins": "*"}})
         self._app.config.from_object(__name__)
         self._app.config.update(dict(
-            DATABASE=os.path.join('/home/sturm/Workspace/Market_analizer', 'database/market.db'),
+            DATABASE=os.path.join(os.path.abspath(''), 'database/market.db'),
             SECRET_KEY='123',
             USERNAME='admin',
             PASSWORD='123',
