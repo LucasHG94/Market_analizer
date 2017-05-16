@@ -42,8 +42,20 @@ class Websocket:
 
     @staticmethod
     @core.app.route('/')
-    def hello_world2():
+    def test():
         return 'It works!'
+
+    @staticmethod
+    @core.app.route('/getStateBonus')
+    def get_state_bonus():
+        try:
+            data = [state_bonus.serialize() for state_bonus in Facade.get_state_bonus(core.session)]
+            return Websocket.valid_response(data)
+        except KeyError as ex:
+            return Websocket.invalid_api_parameter('getCompanies', ex)
+        except Exception as ex:
+            # DEBUG
+            return Websocket.invalid_response(ex)
 
     @staticmethod
     @core.app.route('/getCompanies')

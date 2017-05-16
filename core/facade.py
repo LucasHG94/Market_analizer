@@ -1,9 +1,13 @@
 from datetime import date
 
-from models.base import Company, DailyData
+from models.base import Company, DailyData, StateBonus
 
 
 class Facade:
+
+    @staticmethod
+    def get_state_bonus(session):
+        return session.query(StateBonus).one()
 
     @staticmethod
     def get_companies(session):
