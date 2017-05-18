@@ -62,6 +62,7 @@ class Company(BaseAPI, Base):
         return {
             'id': self.id,
             'name': self.name,
+            'marketType': self.market_type,
             'dailyData': [daily_data.serialize() for daily_data in self.daily_data] if daily_data else None
         }
 
