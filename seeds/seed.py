@@ -55,7 +55,7 @@ def save_state_bonus(session, all_the_times: bool = False):
                 print(ex)
                 session.rollback()
     else:
-        print(dates[0])
+        print('Fetch state bonus of date ' + dates[0])
         state_bonus = StateBonus(
             date=datetime.strptime(dates[0], '%d/%m/%Y').date(),
             type=format_ratio(types[0]),
@@ -94,15 +94,18 @@ def format_company_name(raw: str) -> str:
 
 
 def save_company_daily_data(session, company: Company, sub_url: str):
-    page = requests.get('http://www.infobolsa.es/' + sub_url + format_company_name(company.name))
-    tree = html.fromstring(page.content)
-    ratios = tree.xpath('//td[@class="data"]/text()')
-    price = tree.xpath('//div[@class="subdata1"]/div/text()')
-    difference = tree.xpath('//div[@class="difs"]/div[1]/text()')
-    percentage_difference = tree.xpath('//div[@class="difs"]/div[3]/text()')
     try:
-        save_daily_entry(session, ratios, company.id, price, difference, percentage_difference)
-    except IndexError as ex:
+        page = requests.get('http://www.infobolsa.es/' + sub_url + format_company_name(company.name))
+        tree = html.fromstring(page.content)
+        ratios = tree.xpath('//td[@class="data"]/text()')
+        price = tree.xpath('//div[@class="subdata1"]/div/text()')
+        difference = tree.xpath('//div[@class="difs"]/div[1]/text()')
+        percentage_difference = tree.xpath('//div[@class="difs"]/div[3]/text()')
+        try:
+            save_daily_entry(session, ratios, company.id, price, difference, percentage_difference)
+        except IndexError as ex:
+            print(ex)
+    except requests.exceptions.ConnectionError as ex:
         print(ex)
 
 

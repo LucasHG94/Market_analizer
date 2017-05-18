@@ -101,9 +101,9 @@ class CoreApp(Thread):
                                      connect_args={'check_same_thread': False})
         Session = sessionmaker(bind=self.engine)
         self._session = Session()
-        self.seed_day()
-        # schedule.every().day.at("13:13").do(CoreApp.seed_day)
+        # self.seed_day()
+        schedule.every().day.at("18:00").do(self.seed_day)
         # schedule.every(10).seconds.do(self.seed_day)
 
-        # t = threading.Thread(target=CoreApp.period_seed)
-        # t.start()
+        t = threading.Thread(target=CoreApp.period_seed)
+        t.start()
