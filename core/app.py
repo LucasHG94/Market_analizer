@@ -1,3 +1,4 @@
+import json
 import os
 import threading
 from threading import Thread
@@ -40,7 +41,9 @@ class CoreApp(Thread):
         return Base
 
     def run(self):
-        self.app.run(host='0.0.0.0', debug=False, port=int(os.environ.get("PORT", 5000)), threaded=True)
+        with open('/home/sturm/Workspace/Market_analizer/config/config.json') as raw_data:
+            data = json.load(raw_data)
+            self.app.run(host=data['host'], debug=False, port=int(os.environ.get("PORT", data['port'])), threaded=True)
 
     def seed_companies(self):
         seed_BME(self.session)
@@ -102,8 +105,8 @@ class CoreApp(Thread):
         Session = sessionmaker(bind=self.engine)
         self._session = Session()
         # self.seed_day()
-        schedule.every().day.at("18:00").do(self.seed_day)
+        # schedule.every().day.at("18:00").do(self.seed_day)
         # schedule.every(10).seconds.do(self.seed_day)
 
-        t = threading.Thread(target=CoreApp.period_seed)
-        t.start()
+        # t = threading.Thread(target=CoreApp.period_seed)
+        # t.start()
