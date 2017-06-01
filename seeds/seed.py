@@ -1,4 +1,5 @@
 from lxml import html
+import os
 import requests
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
 from sqlalchemy.orm.session import sessionmaker
@@ -8,7 +9,7 @@ from models.base import DailyData, Company, StateBonus
 
 
 def seed_BME(session):
-    crs = open("/home/sturm/Workspace/Market_analizer/seeds/IBEX35.txt", "r")
+    crs = open(os.path.join(os.path.abspath(''), 'seeds/IBEX35.txt'), "r")
     for company_name in crs:
         company = Company(name=company_name.replace('\n', ''))
         session.add(company)
@@ -19,7 +20,7 @@ def seed_BME(session):
 
 
 def seed_EURO_STOXX50(session):
-    crs = open("/home/sturm/Workspace/Market_analizer/seeds/EURO_STOXX50.txt", "r")
+    crs = open(os.path.join(os.path.abspath(''), 'seeds/EURO_STOXX50.txt'), "r")
     for company_name in crs:
         company = Company(
             name=company_name.replace('\n', ''),

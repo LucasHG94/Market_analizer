@@ -41,7 +41,7 @@ class CoreApp(Thread):
         return Base
 
     def run(self):
-        with open('/home/sturm/Workspace/Market_analizer/config/config.json') as raw_data:
+        with open(os.path.join(os.path.abspath(''), 'config/config.json')) as raw_data:
             data = json.load(raw_data)
             self.app.run(host=data['host'], debug=False, port=int(os.environ.get("PORT", data['port'])), threaded=True)
 
