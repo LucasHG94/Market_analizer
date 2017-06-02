@@ -36,7 +36,7 @@ class StateBonus(BaseAPI, Base):
     def serialize(self) -> dict:
         return {
             'date': self.date,
-            'state_bonus': self.state_bonus,
+            'stateBonus': self.type,
             'variation': self.variation
         }
 

@@ -7,7 +7,7 @@ class Facade:
 
     @staticmethod
     def get_state_bonus(session):
-        return session.query(StateBonus).one()
+        return session.query(StateBonus).all()
 
     @staticmethod
     def get_companies(session):
