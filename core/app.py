@@ -105,7 +105,6 @@ class CoreApp(Thread):
         Session = sessionmaker(bind=self.engine)
         self._session = Session()
         # self.seed_day()
-
         schedule.every().day.at("18:00").do(self.seed_day)
         t = threading.Thread(target=CoreApp.period_seed)
         t.start()

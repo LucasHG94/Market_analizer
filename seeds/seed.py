@@ -115,9 +115,9 @@ def save_other_data(session):
             try:
                 company = session.query(Company).filter_by(name=str(companies[i])).one()
                 if company.daily_data[-1].date == date.today():
-                    company.daily_data[-1].min = string_to_float(mins[i])
-                    company.daily_data[-1].max = string_to_float(maxs[i])
-                    company.daily_data[-1].volume = string_to_float(volume[i])
+                    company.daily_data[-1].min = format_ratio(mins[i])
+                    company.daily_data[-1].max = format_ratio(maxs[i])
+                    company.daily_data[-1].volume = format_ratio(volume[i])
                     session.commit()
             except NoResultFound as ex:
                 print(ex, companies[i])
@@ -172,16 +172,10 @@ def format_company_name(raw: str) -> str:
 
 
 def format_ratio(str_ratio: str) -> float:
-    str_ratio = str_ratio.replace(',', '')
-    str_ratio = str_ratio.replace('-', '0')
-    str_ratio = str_ratio.replace('%', '')
-    float_ratio = float(str_ratio)
-    return float_ratio
-
-
-def string_to_float(str_number: str) -> float:
-    if str_number != '--':
-        str_number = str_number.replace('.', '')
-        return float(str_number.replace(',', '.'))
+    if str_ratio != '--':
+        str_ratio = str_ratio.replace('.', '')
+        str_ratio = str_ratio.replace(',', '.')
+        str_ratio = str_ratio.replace('%', '')
+        return float(str_ratio)
     else:
         return None
