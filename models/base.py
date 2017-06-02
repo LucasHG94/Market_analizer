@@ -90,6 +90,9 @@ class DailyData(BaseAPI, Base):
     dividend_yield = Column('dividend_yield', Float)
     interest_per_share = Column('interest_per_share', Float)
     last_value = Column('last_value', Float)
+    min = Column('min', Float)
+    max = Column('max', Float)
+    volume = Column('volume', Float)
 
     def serialize(self, company: bool = False) -> dict:
         return {
@@ -106,6 +109,9 @@ class DailyData(BaseAPI, Base):
             'PCF': self.PCF,
             'dividendYield': self.dividend_yield,
             'interestPerShare': self.interest_per_share,
-            'lastValue': self.last_value
+            'lastValue': self.last_value,
+            'min': self.min,
+            'max': self.max,
+            'volume': self.volume
         }
 

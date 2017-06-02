@@ -2,6 +2,7 @@ from lxml import html
 import os
 import requests
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.session import sessionmaker
 from datetime import date, datetime
 
@@ -73,30 +74,60 @@ def save_state_bonus(session, all_the_times: bool = False):
 def save_daily_data(session):
     companies = session.query(Company).filter_by(market_type='IBEX35').all()
     for company in companies:
-        save_company_daily_data(session, company, 'cotizacion/informacion-')
+        save_company_daily_data(session, company)
     print('IBEX35 daily data collection completed.')
 
     companies = session.query(Company).filter_by(market_type='BME_no_IBEX35').all()
     for company in companies:
-        save_company_daily_data(session, company, 'cotizacion/informacion-')
+        save_company_daily_data(session, company)
     print('BME daily data collection completed.')
 
-    # companies = session.query(Company).filter_by(market_type='EURO_STOXX50').all()
-    # for company in companies:
-    #     save_company_daily_data(session, company, 'cotizacion-br/')
-    # print('EURO STOXX50 daily data collection completed.')
+    save_other_data(session)
 
 
-def format_company_name(raw: str) -> str:
-    name = raw.replace(' ', '_')
-    name = name.replace('/', '')
-    name = name.replace('"', '')
-    return name.lower()
-
-
-def save_company_daily_data(session, company: Company, sub_url: str):
+def save_other_data(session):
     try:
-        page = requests.get('http://www.infobolsa.es/' + sub_url + format_company_name(company.name))
+        page = requests.get('http://www.finanzas.com/mercado-continuo/')
+        tree = html.fromstring(page.content)
+        data = tree.xpath('//table[@name="option1"]/*/*/td/text()')
+        volume = []
+        mins = []
+        maxs = []
+        file_index = 0
+        for i in range(0, len(data)-1):
+            if file_index == 3:
+                volume.append(data[i])
+            if file_index == 4:
+                maxs.append(data[i])
+            if file_index == 5:
+                mins.append(data[i])
+            if file_index == 7:
+                file_index = 0
+            else:
+                file_index += 1
+        companies = tree.xpath('//table[@name="option1"]/*/*/*/a/text()')
+        volume = volume[5:]
+        mins = mins[5:]
+        maxs = maxs[5:]
+        companies = companies[5:]
+        print(volume)
+        for i in range(0, len(companies)-1):
+            try:
+                company = session.query(Company).filter_by(name=str(companies[i])).one()
+                if company.daily_data[-1].date == date.today():
+                    company.daily_data[-1].min = string_to_float(mins[i])
+                    company.daily_data[-1].max = string_to_float(maxs[i])
+                    company.daily_data[-1].volume = string_to_float(volume[i])
+                    session.commit()
+            except NoResultFound as ex:
+                print(ex, companies[i])
+    except requests.exceptions.ConnectionError as ex:
+        print(ex)
+
+
+def save_company_daily_data(session, company: Company):
+    try:
+        page = requests.get('http://www.infobolsa.es/cotizacion/informacion-' + format_company_name(company.name))
         tree = html.fromstring(page.content)
         ratios = tree.xpath('//td[@class="data"]/text()')
         price = tree.xpath('//div[@class="subdata1"]/div/text()')
@@ -133,6 +164,13 @@ def save_daily_entry(session, ratios: list, company_id: int, price, difference, 
         session.rollback()
 
 
+def format_company_name(raw: str) -> str:
+    name = raw.replace(' ', '_')
+    name = name.replace('/', '')
+    name = name.replace('"', '')
+    return name.lower()
+
+
 def format_ratio(str_ratio: str) -> float:
     str_ratio = str_ratio.replace(',', '')
     str_ratio = str_ratio.replace('-', '0')
@@ -140,3 +178,10 @@ def format_ratio(str_ratio: str) -> float:
     float_ratio = float(str_ratio)
     return float_ratio
 
+
+def string_to_float(str_number: str) -> float:
+    if str_number != '--':
+        str_number = str_number.replace('.', '')
+        return float(str_number.replace(',', '.'))
+    else:
+        return None
