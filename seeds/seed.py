@@ -176,7 +176,6 @@ def format_ratio(str_ratio: str) -> float:
         str_ratio = str_ratio.replace('.', '')
         str_ratio = str_ratio.replace(',', '.')
         str_ratio = str_ratio.replace('%', '')
-        print(str_ratio)
         try:
             return float(str_ratio)
         except ValueError as ex:
