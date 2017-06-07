@@ -3,6 +3,7 @@ import traceback
 from core import __core_app__ as core
 from core.facade import Facade
 from flask import jsonify
+from datetime import datetime
 import json
 
 
@@ -46,10 +47,13 @@ class Websocket:
         return 'It works!'
 
     @staticmethod
-    @core.app.route('/getStateBonus')
-    def get_state_bonus():
+    @core.app.route('/getStateBonus/<from_date>/<to_date>')
+    def get_state_bonus(from_date: str, to_date: str):
         try:
-            data = [state_bonus.serialize() for state_bonus in Facade.get_state_bonus(core.session)]
+            data = [state_bonus.serialize() for state_bonus in
+                    Facade.get_state_bonus(core.session,
+                                           datetime.fromtimestamp(int(from_date)/1000),
+                                           datetime.fromtimestamp(int(to_date)/1000))]
             return Websocket.valid_response(data)
         except KeyError as ex:
             return Websocket.invalid_api_parameter('getCompanies', ex)
@@ -94,12 +98,16 @@ class Websocket:
             return Websocket.invalid_response(ex)
 
     @staticmethod
-    @core.app.route('/getCompanyData/<company_id>')
-    def get_company_data(company_id: int):
-        print('Params: ', company_id)
+    @core.app.route('/getCompanyData/<company_id>/<from_date>/<to_date>')
+    def get_company_data(company_id: int, from_date: str, to_date: str):
         try:
-            data = Facade.get_company_data(core.session, company_id).serialize(daily_data=True)
-            print(data)
+            data = Facade.get_company_by_id(core.session, company_id).serialize()
+            data['dailyData'] = [daily_data.serialize() for daily_data in
+                                 Facade.get_company_data(core.session,
+                                                         company_id,
+                                                         datetime.fromtimestamp(int(from_date)/1000),
+                                                         datetime.fromtimestamp(int(to_date)/1000)
+                                                         )]
             return Websocket.valid_response(data)
         except KeyError as ex:
             return Websocket.invalid_api_parameter('getCompanies', ex)

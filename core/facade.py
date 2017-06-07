@@ -1,4 +1,5 @@
 from datetime import date
+from sqlalchemy import between
 
 from models.base import Company, DailyData, StateBonus
 
@@ -6,8 +7,8 @@ from models.base import Company, DailyData, StateBonus
 class Facade:
 
     @staticmethod
-    def get_state_bonus(session):
-        return session.query(StateBonus).all()
+    def get_state_bonus(session, from_date, to_date):
+        return session.query(StateBonus).filter(between(StateBonus.date, from_date, to_date)).all()
 
     @staticmethod
     def get_companies(session):
@@ -30,8 +31,13 @@ class Facade:
         return session.query(DailyData).filter_by(id=id).filter_by(date=date.today()).one()
 
     @staticmethod
-    def get_company_data(session, id):
+    def get_company_by_id(session, id):
         return session.query(Company).filter_by(id=id).one()
+
+    @staticmethod
+    def get_company_data(session, id, from_date, to_date):
+        return session.query(DailyData).filter_by(company_id=id)\
+            .filter(between(DailyData.date, from_date, to_date)).all()
 
     # @staticmethod
     # def get_range_company_data(session, id, start, end):
