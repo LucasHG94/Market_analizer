@@ -67,6 +67,14 @@ class Company(BaseAPI, Base):
         }
 
 
+Action = Enum(
+    'buy',
+    'sell',
+    'wait',
+    name='Action'
+)
+
+
 class DailyData(BaseAPI, Base):
     __tablename__ = 'daily_data'
     __table_args__ = (
@@ -93,6 +101,9 @@ class DailyData(BaseAPI, Base):
     min = Column('min', Float)
     max = Column('max', Float)
     volume = Column('volume', Float)
+    moving_average_five = Column('moving_average_five', Float)
+    moving_average_ten = Column('moving_average_ten', Float)
+    action = Column('action', Action)
 
     def serialize(self, company: bool = False) -> dict:
         return {
@@ -112,6 +123,9 @@ class DailyData(BaseAPI, Base):
             'lastValue': self.last_value,
             'min': self.min,
             'max': self.max,
-            'volume': self.volume
+            'volume': self.volume,
+            'movingAverageFive': self.moving_average_five,
+            'movingAverageTen': self.moving_average_ten,
+            'action': self.action
         }
 

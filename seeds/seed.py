@@ -84,6 +84,10 @@ def save_daily_data(session):
 
     save_other_data(session)
 
+    print('Calculating moving average')
+    calculate_moving_average_daily(session, 5)
+    calculate_moving_average_daily(session, 10)
+
 
 def save_other_data(session):
     try:
@@ -162,6 +166,43 @@ def save_daily_entry(session, ratios: list, company_id: int, price, difference, 
     except IntegrityError as ex:
         print(ex)
         session.rollback()
+
+
+def calculate_moving_average_history(session, average_reach: int):
+    companies = session.query(Company).all()
+    for company in companies:
+        for i in range(average_reach-1, len(company.daily_data)):
+            sum = 0
+            for j in range(0, average_reach):
+                sum += company.daily_data[i-j].price
+            if average_reach == 5:
+                company.daily_data[i].moving_average_five = sum/average_reach
+            elif average_reach == 10:
+                company.daily_data[i].moving_average_ten = sum/average_reach
+            try:
+                session.commit()
+            except NoResultFound as ex:
+                print(ex)
+                session.rollback()
+
+
+def calculate_moving_average_daily(session, average_reach: int):
+    companies = session.query(Company).all()
+    for company in companies:
+        print(company.name)
+        if len(company.daily_data) >= average_reach:
+            sum = 0
+            for j in range(0, average_reach):
+                sum += company.daily_data[len(company.daily_data)-1-j].price
+            if average_reach == 5:
+                company.daily_data[len(company.daily_data)-1].moving_average_five = sum/average_reach
+            elif average_reach == 10:
+                company.daily_data[len(company.daily_data)-1].moving_average_ten = sum/average_reach
+            try:
+                session.commit()
+            except NoResultFound as ex:
+                print(ex)
+                session.rollback()
 
 
 def format_company_name(raw: str) -> str:
