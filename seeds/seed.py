@@ -189,7 +189,6 @@ def calculate_moving_average_history(session, average_reach: int):
 def calculate_moving_average_daily(session, average_reach: int):
     companies = session.query(Company).all()
     for company in companies:
-        print(company.name)
         if len(company.daily_data) >= average_reach:
             sum = 0
             for j in range(0, average_reach):
