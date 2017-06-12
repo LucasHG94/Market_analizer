@@ -204,6 +204,43 @@ def calculate_moving_average_daily(session, average_reach: int):
                 session.rollback()
 
 
+def calculate_actions(session):
+    print('Calculating action history')
+    companies = session.query(Company).all()
+    for company in companies:
+        for daily_data in company.daily_data:
+            if daily_data.moving_average_five and daily_data.moving_average_ten:
+                if daily_data.price < daily_data.moving_average_five and daily_data.price < daily_data.moving_average_ten:
+                    daily_data.action = 'sell'
+                elif daily_data.price > daily_data.moving_average_five and daily_data.price > daily_data.moving_average_ten:
+                    daily_data.action = 'buy'
+                else:
+                    daily_data.action = 'wait'
+                try:
+                    session.commit()
+                except NoResultFound as ex:
+                    print(ex)
+                    session.rollback()
+
+
+def calculate_day_action(session):
+    print('Calculating action of the day')
+    companies = session.query(Company).all()
+    for company in companies:
+        data = company.daily_data[len(company.daily_data)-1]
+        if data.price < data.moving_average_five and data.price < data.moving_average_ten:
+            data.action = 'sell'
+        elif data.price > data.moving_average_five and data.price > data.moving_average_ten:
+            data.action = 'buy'
+        else:
+            data.action = 'wait'
+        try:
+            session.commit()
+        except NoResultFound as ex:
+            print(ex)
+            session.rollback()
+
+
 def format_company_name(raw: str) -> str:
     name = raw.replace(' ', '_')
     name = name.replace('/', '')
