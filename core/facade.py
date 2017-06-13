@@ -43,3 +43,11 @@ class Facade:
     # def get_range_company_data(session, id, start, end):
     #     return session.query(DailyData).filter_by(id=id).filter_by(date=date.today()).one()
 
+    @staticmethod
+    def get_last_data(session):
+        companies = session.query(Company).filter_by().all()
+        data = []
+        for company in companies:
+            data.append({'company': company.serialize(), 'lastData': company.daily_data[len(company.daily_data)-1].serialize()})
+        return data
+

@@ -115,3 +115,14 @@ class Websocket:
             # DEBUG
             return Websocket.invalid_response(ex)
 
+    @staticmethod
+    @core.app.route('/getLastData')
+    def get_last_data():
+        try:
+            return Websocket.valid_response(Facade.get_last_data(core.session))
+        except KeyError as ex:
+            return Websocket.invalid_api_parameter('getCompanies', ex)
+        except Exception as ex:
+            # DEBUG
+            return Websocket.invalid_response(ex)
+
