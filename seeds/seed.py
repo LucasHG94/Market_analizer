@@ -87,6 +87,7 @@ def save_daily_data(session):
     print('Calculating moving average')
     calculate_moving_average_daily(session, 5)
     calculate_moving_average_daily(session, 10)
+    calculate_day_action(session)
 
 
 def save_other_data(session):
