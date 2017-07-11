@@ -1,3 +1,7 @@
+"""
+    Queries to the database
+"""
+
 from datetime import date
 from sqlalchemy import between
 

@@ -1,3 +1,7 @@
+"""
+    Functions for collecting and saving data in the database
+"""
+
 from lxml import html
 import os
 import requests

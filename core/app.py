@@ -1,3 +1,7 @@
+"""
+    Starting the flask application and scheduling data collection
+"""
+
 import json
 import os
 import threading
@@ -11,7 +15,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.session import sessionmaker
 
 from models.base import Base, Company
-from seeds.seed import seed_BME, save_daily_data, save_state_bonus
+from seeds.seed import seed_BME, save_daily_data, save_state_bonus, calculate_actions
 
 import time
 import schedule

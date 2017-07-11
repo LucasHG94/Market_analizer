@@ -1,3 +1,6 @@
+"""
+    Model of the database
+"""
 
 import traceback
 from sqlalchemy import Column,Integer,Sequence, String

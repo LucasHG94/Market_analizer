@@ -1,10 +1,13 @@
+"""
+    Methods available in the API
+"""
+
 import traceback
 
 from core import __core_app__ as core
 from core.facade import Facade
 from flask import jsonify
 from datetime import datetime
-import json
 
 
 class Websocket:
@@ -12,7 +15,6 @@ class Websocket:
     @staticmethod
     def valid_response(data: any = None):
         return jsonify({'success': True, 'data': data})
-        # return '__ng_jsonp__.__req0.finished(' + str(json.dumps({'success': True, 'data': data})) + ');'
 
     @staticmethod
     def invalid_response(data, err_code: int = 1) -> str:
